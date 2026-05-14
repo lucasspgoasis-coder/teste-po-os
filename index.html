@@ -16,19 +16,19 @@
             background: white;
             margin: 0 auto;
             transition: width 0.4s ease-in-out;
-            min-width: 1100px;
+            min-width: 1200px; /* Aumentado ligeiramente para acomodar textos maiores */
         }
 
         .chart-container {
             position: relative;
             width: 100%;
-            height: 600px;
-            margin-top: 40px;
+            height: 700px;
+            margin-top: 50px;
         }
 
         .data-column {
-            min-width: 350px;
-            border-right: 4px solid #f1f5f9;
+            min-width: 400px; /* Colunas mais largas para textos maiores */
+            border-right: 6px solid #f1f5f9;
             flex: 1;
         }
         .data-column:last-child { border-right: none; }
@@ -94,86 +94,86 @@
         </div>
 
         <!-- RELATÓRIO PARA EXPORTAÇÃO -->
-        <div id="relatorio-export" class="p-12 md:p-20 rounded-[3.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <div id="relatorio-export" class="p-12 md:p-24 rounded-[4rem] shadow-2xl border border-slate-100 overflow-hidden">
             <!-- Cabeçalho Principal -->
-            <div class="flex flex-col md:flex-row justify-between items-center border-b-[10px] border-slate-900 pb-12 mb-12 gap-8">
-                <div class="flex items-center gap-10">
-                    <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-32 w-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center border-b-[12px] border-slate-900 pb-16 mb-16 gap-10">
+                <div class="flex items-center gap-12">
+                    <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-40 w-auto">
                     <div>
-                        <h1 class="text-6xl font-[950] text-slate-900 tracking-tighter leading-none mb-2">TESTE DE VAZÃO</h1>
-                        <p class="text-emerald-600 font-black uppercase tracking-[0.5em] text-xl">FAZENDA OASIS</p>
+                        <h1 class="text-7xl font-[950] text-slate-900 tracking-tighter leading-none mb-3">TESTE DE VAZÃO</h1>
+                        <p class="text-emerald-600 font-black uppercase tracking-[0.6em] text-2xl">FAZENDA OASIS</p>
                     </div>
                 </div>
-                <div class="bg-slate-900 p-8 rounded-[2.5rem] min-w-[380px] text-center shadow-xl">
-                    <span class="text-[10px] font-black text-emerald-400 uppercase block mb-2 tracking-[0.3em]">Identificação do Poço</span>
-                    <p class="text-4xl font-black text-white uppercase leading-tight" id="display-poco">---</p>
+                <div class="bg-slate-900 p-10 rounded-[3rem] min-w-[450px] text-center shadow-2xl">
+                    <span class="text-xs font-black text-emerald-400 uppercase block mb-3 tracking-[0.4em]">Identificação do Poço</span>
+                    <p class="text-5xl font-black text-white uppercase leading-tight" id="display-poco">---</p>
                 </div>
             </div>
 
             <!-- Tabela de Registos Lado a Lado -->
-            <div class="mb-16">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-3 w-20 bg-slate-900 rounded-full"></div>
-                    <h2 class="text-3xl font-black text-slate-900 uppercase tracking-widest">Leituras de Vazão</h2>
+            <div class="mb-20">
+                <div class="flex items-center gap-6 mb-10">
+                    <div class="h-4 w-24 bg-slate-900 rounded-full"></div>
+                    <h2 class="text-4xl font-black text-slate-900 uppercase tracking-widest">Leituras de Vazão Diária</h2>
                 </div>
-                <div id="tabela-comparativa" class="flex flex-row overflow-x-auto rounded-[2.5rem] border-8 border-slate-900 min-h-[450px]">
-                    <div class="w-full flex items-center justify-center p-24 text-slate-200 font-black text-3xl uppercase italic tracking-widest text-center" id="placeholder-text">
+                <div id="tabela-comparativa" class="flex flex-row overflow-x-auto rounded-[3rem] border-[10px] border-slate-900 min-h-[500px]">
+                    <div class="w-full flex items-center justify-center p-32 text-slate-200 font-black text-4xl uppercase italic tracking-widest text-center" id="placeholder-text">
                         Aguardando dados...
                     </div>
                 </div>
             </div>
 
             <!-- Gráfico Comparativo -->
-            <div class="bg-slate-50 p-12 rounded-[4rem] border-4 border-slate-100">
-                <div class="flex items-center gap-5 mb-10">
-                    <div class="h-3 w-24 bg-emerald-500 rounded-full"></div>
-                    <h3 class="font-black text-slate-900 text-3xl uppercase tracking-[0.3em]">Evolução do Teste</h3>
+            <div class="bg-slate-50 p-16 rounded-[5rem] border-4 border-slate-100">
+                <div class="flex items-center gap-6 mb-12">
+                    <div class="h-4 w-32 bg-emerald-500 rounded-full"></div>
+                    <h3 class="font-black text-slate-900 text-4xl uppercase tracking-[0.4em]">Evolução do Teste</h3>
                 </div>
                 <div class="chart-container">
                     <canvas id="graficoVazao"></canvas>
                 </div>
             </div>
             
-            <!-- Resumo Final (Cartões Corrigidos) -->
-            <div class="mt-24 pt-16 border-t-8 border-slate-100 flex justify-between items-end">
-                <div class="space-y-3">
-                    <p class="text-xl text-slate-400 font-black uppercase tracking-[0.8em]">Fazenda Oasis</p>
-                    <p class="text-sm text-slate-300 uppercase font-bold tracking-widest">Controlo de Recursos Hídricos</p>
+            <!-- Resumo Final -->
+            <div class="mt-32 pt-20 border-t-[10px] border-slate-100 flex justify-between items-end">
+                <div class="space-y-4">
+                    <p class="text-3xl text-slate-400 font-black uppercase tracking-[0.8em]">Fazenda Oasis</p>
+                    <p class="text-lg text-slate-300 uppercase font-bold tracking-widest">Gestão de Recursos Hídricos de Alta Performance</p>
                 </div>
                 
-                <!-- Cards de Resumo Compactados -->
-                <div class="flex gap-6">
-                    <div class="bg-slate-50 px-8 py-6 rounded-[2rem] text-right border-2 border-slate-100">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Total Horas Acumuladas</p>
-                        <p class="text-3xl font-[900] text-slate-800" id="horas-total-geral">0.0h</p>
+                <!-- Cards de Resumo Grandes -->
+                <div class="flex gap-8">
+                    <div class="bg-slate-50 px-10 py-10 rounded-[3rem] text-right border-4 border-slate-100">
+                        <p class="text-xs font-black text-slate-400 uppercase mb-3 tracking-widest">Total Horas Acumuladas</p>
+                        <p class="text-5xl font-[950] text-slate-800" id="horas-total-geral">0.0h</p>
                     </div>
-                    <div class="bg-slate-900 px-8 py-6 rounded-[2rem] text-right shadow-lg">
-                        <p class="text-[10px] font-black text-emerald-400 uppercase mb-1 tracking-widest">Volume Estimado</p>
-                        <p class="text-3xl font-[900] text-white" id="volume-geral">0 L</p>
+                    <div class="bg-slate-900 px-10 py-10 rounded-[3rem] text-right shadow-2xl">
+                        <p class="text-xs font-black text-emerald-400 uppercase mb-3 tracking-widest">Volume Estimado</p>
+                        <p class="text-5xl font-[950] text-white" id="volume-geral">0 L</p>
                     </div>
-                    <div class="bg-emerald-600 px-8 py-6 rounded-[2rem] text-right shadow-lg">
-                        <p class="text-[10px] font-black text-emerald-100 uppercase mb-1 tracking-widest">Média Geral</p>
-                        <p class="text-3xl font-[900] text-white" id="media-geral">0 L/h</p>
+                    <div class="bg-emerald-600 px-10 py-10 rounded-[3rem] text-right shadow-2xl">
+                        <p class="text-xs font-black text-emerald-100 uppercase mb-3 tracking-widest">Média Geral</p>
+                        <p class="text-5xl font-[950] text-white" id="media-geral">0 L/h</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ACÇÕES -->
-        <div class="flex flex-col md:flex-row gap-6 no-print pb-32 max-w-[1200px] mx-auto">
-            <button onclick="baixarJPEG()" class="flex-[3] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-8 rounded-[2rem] shadow-xl transition-all flex items-center justify-center gap-6 uppercase tracking-[0.2em] text-xl">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Exportar Relatório JPEG
+        <div class="flex flex-col md:flex-row gap-8 no-print pb-40 max-w-[1200px] mx-auto">
+            <button onclick="baixarJPEG()" class="flex-[3] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-10 rounded-[2.5rem] shadow-2xl transition-all flex items-center justify-center gap-8 uppercase tracking-[0.2em] text-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Exportar Relatório JPEG (Alta Definição)
             </button>
-            <button onclick="resetarDados()" class="flex-1 bg-white border-2 border-slate-200 text-slate-400 font-black py-8 rounded-[2rem] hover:bg-red-50 hover:text-red-500 transition-all uppercase text-xs tracking-widest">
-                Limpar Registos
+            <button onclick="resetarDados()" class="flex-1 bg-white border-4 border-slate-200 text-slate-400 font-black py-10 rounded-[2.5rem] hover:bg-red-50 hover:text-red-500 transition-all uppercase text-sm tracking-widest">
+                Limpar Banco
             </button>
         </div>
     </div>
 
     <!-- Toast de Notificação -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-12 py-6 rounded-full shadow-2xl transform translate-y-64 transition-transform duration-500 z-50">
-        <span id="toast-msg" class="font-black text-sm uppercase tracking-widest"></span>
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-16 py-8 rounded-full shadow-2xl transform translate-y-64 transition-transform duration-500 z-50">
+        <span id="toast-msg" class="font-black text-lg uppercase tracking-widest"></span>
     </div>
 
     <script>
@@ -197,7 +197,7 @@
             const vazao = parseFloat(document.getElementById('leitura-vazao').value);
 
             if (!dataVal || !hora || isNaN(vazao)) {
-                showToast("⚠️ Preencha os campos corretamente");
+                showToast("⚠️ Dados em falta");
                 return;
             }
 
@@ -213,14 +213,14 @@
             ajustarLargura();
             
             document.getElementById('leitura-vazao').value = '';
-            showToast("✅ Registo Adicionado");
+            showToast("✅ Registro Efetuado");
         }
 
         function ajustarLargura() {
             const container = document.getElementById('relatorio-export');
             const datasDistintas = [...new Set(dadosLeitura.map(d => d.data))].length;
-            let novaLargura = 1100 + (datasDistintas > 1 ? (datasDistintas - 1) * 380 : 0);
-            container.style.width = Math.max(1100, novaLargura) + "px";
+            let novaLargura = 1200 + (datasDistintas > 1 ? (datasDistintas - 1) * 450 : 0);
+            container.style.width = Math.max(1200, novaLargura) + "px";
         }
 
         function calcularHorasDia(leituras) {
@@ -261,27 +261,30 @@
                 const col = document.createElement('div');
                 col.className = "data-column flex flex-col";
                 
+                // Cabeçalho Data (Texto Gigante)
                 const header = document.createElement('div');
-                header.className = "bg-slate-900 text-white p-6 text-center font-black text-2xl border-b-2 border-slate-700";
+                header.className = "bg-slate-900 text-white p-8 text-center font-black text-4xl border-b-4 border-slate-700";
                 header.innerText = `${dia}/${mes}/${ano}`;
                 col.appendChild(header);
 
+                // Sub-cabeçalhos
                 const subHeader = document.createElement('div');
-                subHeader.className = "grid grid-cols-2 bg-slate-100 border-b border-slate-200 p-4 text-[9px] font-black uppercase text-slate-500 text-center";
-                subHeader.innerHTML = '<div>Hora</div><div>Vazão (L/h)</div>';
+                subHeader.className = "grid grid-cols-2 bg-slate-100 border-b-2 border-slate-200 p-6 text-xs font-black uppercase text-slate-500 text-center";
+                subHeader.innerHTML = '<div>Horário</div><div>Vazão (L/h)</div>';
                 col.appendChild(subHeader);
 
+                // Linhas de dados (Texto Aumentado)
                 leiturasDia.forEach((item) => {
                     somaVazoes += item.vazao;
                     const row = document.createElement('div');
-                    row.className = "row-item grid grid-cols-2 border-b border-slate-50 p-5 text-center items-center relative";
+                    row.className = "row-item grid grid-cols-2 border-b border-slate-50 p-8 text-center items-center relative";
                     const globalIdx = dadosLeitura.findIndex(d => d === item);
 
                     row.innerHTML = `
-                        <div class="font-bold text-slate-400 text-xl">${item.hora}</div>
-                        <div class="font-black text-emerald-600 text-2xl">${item.vazao.toLocaleString('pt-BR')}</div>
-                        <button onclick="excluirRegistro(${globalIdx})" class="btn-del absolute right-2 text-red-200 hover:text-red-500 no-print">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                        <div class="font-bold text-slate-400 text-3xl">${item.hora}</div>
+                        <div class="font-black text-emerald-600 text-4xl">${item.vazao.toLocaleString('pt-BR')}</div>
+                        <button onclick="excluirRegistro(${globalIdx})" class="btn-del absolute right-4 text-red-100 hover:text-red-500 no-print">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
                         </button>
                     `;
                     col.appendChild(row);
@@ -294,16 +297,17 @@
                 totalHorasGeral += horasDia;
                 totalVolumeGeral += volumeDia;
 
+                // Rodapé Coluna
                 const footer = document.createElement('div');
-                footer.className = "mt-auto bg-slate-50 p-6 border-t-2 border-slate-200 space-y-2";
+                footer.className = "mt-auto bg-slate-50 p-8 border-t-4 border-slate-200 space-y-4";
                 footer.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="text-[8px] font-black text-slate-400 uppercase">Horas:</span>
-                        <span class="text-slate-800 font-black text-sm">${horasDia.toFixed(1)}h</span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase">Horas Ativas:</span>
+                        <span class="text-slate-800 font-black text-xl">${horasDia.toFixed(1)}h</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-[8px] font-black text-emerald-600 uppercase">Média:</span>
-                        <span class="text-lg font-black text-emerald-700">${mediaDia.toLocaleString('pt-BR', {maximumFractionDigits: 0})} L/h</span>
+                        <span class="text-[10px] font-black text-emerald-600 uppercase">Média Dia:</span>
+                        <span class="text-3xl font-[900] text-emerald-700">${mediaDia.toLocaleString('pt-BR', {maximumFractionDigits: 0})} L/h</span>
                     </div>
                 `;
                 col.appendChild(footer);
@@ -320,18 +324,18 @@
             renderizarTabelaLadoALado();
             atualizarGrafico();
             ajustarLargura();
-            showToast("🗑️ Registo Removido");
+            showToast("🗑️ Registro Apagado");
         }
 
         function inicializarGrafico() {
             const ctx = document.getElementById('graficoVazao').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: '#10b981', borderRadius: 12 }] },
+                data: { labels: [], datasets: [{ data: [], backgroundColor: '#10b981', borderRadius: 15 }] },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 70, bottom: 10 } },
+                    layout: { padding: { top: 100, bottom: 20 } },
                     plugins: { 
                         legend: { display: false },
                         datalabels: { 
@@ -339,13 +343,13 @@
                             align: 'top', 
                             anchor: 'end', 
                             color: '#064e3b', 
-                            font: { size: 16, weight: '900' },
+                            font: { size: 20, weight: '950' },
                             formatter: (v) => v.toLocaleString('pt-BR')
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold', size: 14 } } },
-                        x: { grid: { display: false }, ticks: { font: { weight: '900', size: 14 } } }
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold', size: 18 } } },
+                        x: { grid: { display: false }, ticks: { font: { weight: '950', size: 18 } } }
                     }
                 }
             });
@@ -378,11 +382,11 @@
         async function baixarJPEG() {
             if (dadosLeitura.length === 0) return;
             const relatorio = document.getElementById('relatorio-export');
-            showToast("📸 A gerar imagem 4K...");
+            showToast("📸 Capturando imagem em 4K...");
             
             try {
                 const canvas = await html2canvas(relatorio, {
-                    scale: 2.5, 
+                    scale: 3, // Aumentado para escala 3 para garantir nitidez extrema
                     useCORS: true,
                     backgroundColor: '#ffffff',
                     width: relatorio.scrollWidth,
@@ -392,22 +396,22 @@
                 
                 const link = document.createElement('a');
                 const poco = document.getElementById('poco-nome').value || 'RELATORIO';
-                link.download = `RELATORIO_VAZAO_${poco.replace(/\s+/g, '_')}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.download = `TESTE_VAZAO_${poco.replace(/\s+/g, '_')}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.98);
                 link.click();
-                showToast("✅ Download Finalizado");
+                showToast("✅ Relatório Exportado!");
             } catch (err) {
-                showToast("❌ Erro na exportação");
+                showToast("❌ Erro ao exportar");
             }
         }
 
         function resetarDados() {
-            if (confirm("Deseja apagar todos os registos?")) {
+            if (confirm("Deseja apagar permanentemente todos os registros atuais?")) {
                 dadosLeitura = [];
                 renderizarTabelaLadoALado();
                 atualizarGrafico();
                 ajustarLargura();
-                showToast("🧹 Base de Dados Limpa");
+                showToast("🧹 Base de Dados Reiniciada");
             }
         }
 
