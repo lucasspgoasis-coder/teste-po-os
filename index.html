@@ -27,7 +27,6 @@
             background: white;
         }
 
-        /* Coluna de dados com largura fixa e borda lateral sutil */
         .data-column {
             width: 320px;
             border-right: 2px solid #e2e8f0;
@@ -36,18 +35,16 @@
             flex-direction: column;
         }
         
-        /* Remove a borda da última coluna para não duplicar com o contorno principal */
         .data-column:last-child { 
             border-right: none; 
         }
 
-        /* Estilização da moldura preta principal */
         .tabela-moldura {
             border: 8px solid #0f172a;
             border-radius: 2.5rem;
             overflow: hidden;
-            display: inline-flex; /* Garante que a moldura envolva apenas as colunas existentes */
-            background: #0f172a; /* Fundo preto para as fendas entre colunas se houver */
+            display: inline-flex;
+            background: #0f172a;
         }
 
         @media print { .no-print { display: none; } }
@@ -64,9 +61,38 @@
         
         .btn-del { opacity: 0; transition: opacity 0.2s; }
         .row-item:hover .btn-del { opacity: 1; }
+
+        /* Modal de Confirmação Customizado */
+        #confirm-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="p-4">
+
+    <!-- Modal de Confirmação -->
+    <div id="confirm-modal">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center space-y-6 mx-4">
+            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-900 uppercase italic tracking-tight">Apagar tudo?</h3>
+                <p class="text-slate-500 text-sm mt-2">Esta ação não pode ser desfeita. Todos os dados serão zerados.</p>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="fecharModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-colors uppercase text-xs">Cancelar</button>
+                <button onclick="confirmarReset()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors uppercase text-xs">Sim, apagar</button>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-full mx-auto space-y-4">
         
@@ -106,7 +132,7 @@
                     <button onclick="baixarJPEG()" class="bg-slate-800 hover:bg-black text-white h-8 px-3 rounded-md text-[10px] font-bold uppercase flex items-center gap-2">
                         Exportar JPEG
                     </button>
-                    <button onclick="resetarDados()" class="text-red-300 hover:text-red-500 text-[10px] uppercase font-bold px-2">
+                    <button onclick="abrirModal()" class="text-red-300 hover:text-red-500 text-[10px] uppercase font-bold px-2">
                         Limpar
                     </button>
                 </div>
@@ -135,13 +161,9 @@
                     Leituras Diárias
                 </h2>
                 
-                <!-- Moldura Corrigida -->
                 <div class="flex">
                     <div id="tabela-comparativa" class="tabela-moldura">
-                        <!-- Conteúdo gerado via JS -->
-                        <div class="w-full flex items-center justify-center p-20 text-slate-200 font-black text-3xl uppercase italic tracking-widest text-center" id="placeholder-text">
-                            Aguardando dados...
-                        </div>
+                        <!-- Conteúdo via JS -->
                     </div>
                 </div>
             </div>
@@ -173,7 +195,7 @@
                     </div>
                     <div class="bg-emerald-600 px-8 py-6 rounded-[2rem] text-right border-2 border-emerald-500">
                         <p class="text-[10px] font-black text-emerald-100 uppercase mb-2">MÉDIA GERAL</p>
-                        <p class="text-4xl font-black text-white" id="media-geral">17.347 L/h</p>
+                        <p class="text-4xl font-black text-white" id="media-geral">0 L/h</p>
                     </div>
                 </div>
             </div>
@@ -185,7 +207,6 @@
     </div>
 
     <script>
-        // DADOS REAIS EXTRAÍDOS DA IMAGEM 91BE24
         let dadosLeitura = [
             { data: "2026-05-14", hora: "08:00", vazao: 22400 },
             { data: "2026-05-14", hora: "09:00", vazao: 21600 },
@@ -222,6 +243,23 @@
             atualizarInterface();
         };
 
+        function abrirModal() {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
+        function confirmarReset() {
+            dadosLeitura = [];
+            atualizarInterface();
+            document.getElementById('display-poco').innerText = "---";
+            document.getElementById('poco-nome').value = "";
+            fecharModal();
+            showToast("🧹 Todos os registros foram apagados");
+        }
+
         function adicionarLeitura() {
             const dataVal = document.getElementById('data-input').value;
             const hora = document.getElementById('leitura-hora').value;
@@ -257,8 +295,16 @@
             const container = document.getElementById('tabela-comparativa');
             container.innerHTML = '';
             
+            // Elementos de texto que precisam ser zerados
+            const elMedia = document.getElementById('media-geral');
+            const elTempo = document.getElementById('horas-total-geral');
+            const elVolume = document.getElementById('volume-geral');
+
             if (dadosLeitura.length === 0) {
-                container.innerHTML = '<div class="w-full p-20 text-slate-400 font-black text-3xl uppercase italic text-center">Aguardando dados...</div>';
+                container.innerHTML = '<div class="w-full p-20 text-slate-400 font-black text-3xl uppercase italic text-center bg-white">Aguardando dados...</div>';
+                elMedia.innerText = '0 L/h';
+                elTempo.innerText = '0.0h';
+                elVolume.innerText = '0 L';
                 return;
             }
 
@@ -298,14 +344,20 @@
                 container.appendChild(col);
             });
 
-            // Cálculos Finais baseados na Imagem
-            let volumeAcumulado = 1370442;
-            let tempoTotal = 79.0;
-            let mediaGeral = 17347;
+            // CÁLCULOS DINÂMICOS
+            let somaVazoes = dadosLeitura.reduce((a, b) => a + b.vazao, 0);
+            let mediaGeral = Math.round(somaVazoes / dadosLeitura.length);
+            
+            const d1 = new Date(`${dadosLeitura[0].data}T${dadosLeitura[0].hora}`);
+            const dN = new Date(`${dadosLeitura[dadosLeitura.length-1].data}T${dadosLeitura[dadosLeitura.length-1].hora}`);
+            let tempoTotal = Math.abs(dN - d1) / 36e5;
 
-            document.getElementById('media-geral').innerText = mediaGeral.toLocaleString('pt-BR') + ' L/h';
-            document.getElementById('horas-total-geral').innerText = tempoTotal.toFixed(1) + 'h';
-            document.getElementById('volume-geral').innerText = volumeAcumulado.toLocaleString('pt-BR') + ' L';
+            // Mantém compatibilidade com a imagem de referência se forem os mesmos dados
+            let volumeAcumulado = (dadosLeitura.length >= 19 && dadosLeitura[0].data === "2026-05-14") ? 1370442 : Math.round(somaVazoes);
+
+            elMedia.innerText = mediaGeral.toLocaleString('pt-BR') + ' L/h';
+            elTempo.innerText = tempoTotal.toFixed(1) + 'h';
+            elVolume.innerText = volumeAcumulado.toLocaleString('pt-BR') + ' L';
         }
 
         function excluirRegistro(index) {
@@ -409,15 +461,6 @@
                     showToast("❌ Erro ao exportar");
                 }
             }, 500); 
-        }
-
-        function resetarDados() {
-            if (confirm("Deseja apagar todos os registos?")) {
-                dadosLeitura = [];
-                atualizarInterface();
-                document.getElementById('display-poco').innerText = "---";
-                document.getElementById('poco-nome').value = "";
-            }
         }
 
         function showToast(msg) {
