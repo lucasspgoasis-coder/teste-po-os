@@ -12,12 +12,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: auto; }
         
-        /* Container do Relatório com largura mínima dinâmica */
         #relatorio-export {
             background: white;
             margin: 0 auto;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            min-width: 800px; /* Largura mínima para manter estrutura */
+            transition: width 0.4s ease-in-out;
+            min-width: 1000px;
         }
 
         .chart-container {
@@ -27,15 +26,17 @@
             margin-top: 40px;
         }
 
+        .data-column {
+            min-width: 300px;
+            border-right: 4px solid #f1f5f9;
+            flex: 1;
+        }
+        .data-column:last-child { border-right: none; }
+
         @media print { .no-print { display: none; } }
         .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
         .hide-on-export { display: none !important; }
 
-        table { border-spacing: 0; width: 100%; table-layout: fixed; }
-        th { background-color: #0f172a; color: white; text-transform: uppercase; letter-spacing: 0.15em; border: none !important; }
-        td { border-bottom: 1px solid #f1f5f9; word-wrap: break-word; }
-
-        /* Estilização dos inputs para serem mais largos e legíveis */
         .input-registro {
             width: 100%;
             border-radius: 1rem;
@@ -45,126 +46,113 @@
             outline: none;
             transition: all 0.2s;
         }
-        .input-registro:focus { border-color: #10b981; ring: 4px; ring-color: rgba(16, 185, 129, 0.1); }
+        .input-registro:focus { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        
+        .row-item:hover .btn-del { opacity: 1; }
+        .btn-del { opacity: 0; transition: opacity 0.2s; }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
-    <div class="max-w-[1600px] mx-auto space-y-8">
+    <div class="max-w-full mx-auto space-y-8">
         
-        <!-- PAINEL DE REGISTRO - CORRIGIDO ESPAÇAMENTO -->
-        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] no-print">
+        <!-- PAINEL DE REGISTRO -->
+        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] no-print max-w-[1400px] mx-auto">
             <div class="flex items-center gap-6 mb-10 border-b-2 border-slate-50 pb-8">
                 <div class="p-4 bg-emerald-50 rounded-2xl">
                     <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-14 w-auto">
                 </div>
                 <div>
-                    <h2 class="text-2xl font-black uppercase tracking-tight text-slate-800">Painel de Monitoramento</h2>
-                    <p class="text-emerald-600 font-bold text-sm uppercase tracking-widest">Entrada de dados técnica</p>
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-slate-800">Registrar Vazão</h2>
+                    <p class="text-emerald-600 font-bold text-sm uppercase tracking-widest">Organização Automática por Data</p>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                 <div class="space-y-2">
                     <label class="text-xs font-black text-slate-400 uppercase ml-2">Identificação do Poço</label>
-                    <input type="text" id="poco-nome" placeholder="NOME OU CÓDIGO DO POÇO" class="input-registro font-black uppercase">
+                    <input type="text" id="poco-nome" placeholder="NOME DO POÇO" class="input-registro font-black uppercase">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-black text-slate-400 uppercase ml-2">Data de Início</label>
+                    <label class="text-xs font-black text-slate-400 uppercase ml-2">Data da Leitura</label>
                     <input type="date" id="data-input" class="input-registro font-bold">
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-8 md:p-10 rounded-[2rem] border-2 border-dashed border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+            <div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-dashed border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Horário da Leitura</label>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Horário</label>
                     <input type="time" id="leitura-hora" class="input-registro">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Vazão Mensurada (L/h)</label>
                     <input type="number" id="leitura-vazao" step="any" placeholder="0.00" class="input-registro">
                 </div>
-                <button onclick="adicionarLeitura()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 px-8 rounded-2xl uppercase text-sm shadow-xl shadow-emerald-100 transition-all hover:-translate-y-1 active:scale-95">
-                    Registrar Dados
+                <button onclick="adicionarLeitura()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 px-8 rounded-2xl uppercase text-sm shadow-xl shadow-emerald-100 transition-all active:scale-95">
+                    Adicionar à Tabela
                 </button>
             </div>
         </div>
 
-        <!-- RELATÓRIO COM LARGURA DINÂMICA -->
-        <div id="relatorio-export" class="p-12 md:p-20 rounded-[4rem] shadow-2xl border border-slate-100">
+        <!-- RELATÓRIO LADO A LADO -->
+        <div id="relatorio-export" class="p-12 md:p-20 rounded-[4rem] shadow-2xl border border-slate-100 overflow-hidden">
             <!-- Cabeçalho -->
             <div class="flex flex-col md:flex-row justify-between items-center border-b-[10px] border-slate-900 pb-12 mb-12 gap-10">
                 <div class="flex items-center gap-10">
                     <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-32 w-auto">
                     <div>
-                        <h1 class="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">RELATÓRIO DE VAZÃO</h1>
+                        <h1 class="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">TESTE DE VAZÃO</h1>
                         <p class="text-emerald-600 font-black uppercase tracking-[0.5em] text-lg mt-3">Fazenda Oasis</p>
                     </div>
                 </div>
                 <div class="bg-slate-900 p-10 rounded-[2.5rem] min-w-[350px] text-center shadow-2xl">
-                    <span class="text-[10px] font-black text-emerald-400 uppercase block mb-2 tracking-[0.2em]">Identificação do Ativo</span>
+                    <span class="text-[10px] font-black text-emerald-400 uppercase block mb-2 tracking-[0.2em]">Identificação</span>
                     <p class="text-3xl font-black text-white uppercase" id="display-poco">---</p>
                 </div>
             </div>
 
-            <!-- Tabela -->
+            <!-- TABELA MULTI-COLUNAS -->
             <div class="mb-16">
-                <table id="tabela-dados">
-                    <thead>
-                        <tr id="tab-header">
-                            <th class="px-10 py-8 text-left rounded-tl-[2rem] w-1/4">Data</th>
-                            <th class="px-10 py-8 text-left w-1/4">Horário</th>
-                            <th class="px-10 py-8 text-right w-1/4">Vazão (L/h)</th>
-                            <th class="px-10 py-8 text-center rounded-tr-[2rem] col-acoes w-[100px]">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-corpo">
-                        <tr><td colspan="4" class="px-8 py-40 text-center text-slate-200 italic font-black text-3xl uppercase tracking-widest">Aguardando dados...</td></tr>
-                    </tbody>
-                    <tfoot id="tab-footer">
-                        <tr class="bg-slate-100">
-                            <td colspan="2" class="px-10 py-10 text-right font-black uppercase tracking-widest text-slate-500">Duração do Teste:</td>
-                            <td class="px-10 py-10 text-right font-black text-slate-900" id="total-horas">0.00 h</td>
-                            <td class="col-acoes"></td>
-                        </tr>
-                        <tr class="bg-emerald-600 text-white">
-                            <td colspan="2" class="px-10 py-12 text-right font-black uppercase tracking-widest">Volume Total Produzido:</td>
-                            <td class="px-10 py-12 text-right font-[900]" id="total-volume">0 L/h</td>
-                            <td class="col-acoes"></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div id="tabela-comparativa" class="flex flex-row overflow-x-auto rounded-[2rem] border-4 border-slate-900 min-h-[400px]">
+                    <!-- Colunas de datas serão inseridas aqui via JS -->
+                    <div class="w-full flex items-center justify-center p-20 text-slate-200 font-black text-2xl uppercase italic tracking-widest" id="placeholder-text">
+                        Aguardando dados para comparação...
+                    </div>
+                </div>
             </div>
 
-            <!-- Gráfico que expande horizontalmente -->
+            <!-- Gráfico Comparativo -->
             <div class="mt-20 bg-slate-50 p-12 rounded-[4rem] border-2 border-slate-100">
-                <div class="flex items-center justify-between mb-12">
-                    <div class="flex items-center gap-4">
-                        <div class="h-3 w-20 bg-emerald-500 rounded-full"></div>
-                        <h3 class="font-black text-slate-900 text-xl uppercase tracking-[0.3em]">Comportamento Hidráulico</h3>
-                    </div>
+                <div class="flex items-center gap-4 mb-12">
+                    <div class="h-3 w-20 bg-emerald-500 rounded-full"></div>
+                    <h3 class="font-black text-slate-900 text-2xl uppercase tracking-[0.3em]">Comportamento Comparativo</h3>
                 </div>
                 <div class="chart-container">
                     <canvas id="graficoVazao"></canvas>
                 </div>
             </div>
             
-            <div class="mt-24 pt-16 border-t-4 border-slate-100 text-center">
-                <p class="text-sm text-slate-400 font-black uppercase tracking-[0.8em]">Sítio Pedra Grande • Monitoramento Oasis v2.0</p>
-                <p class="text-[12px] text-slate-300 mt-6 uppercase font-bold tracking-widest">Este documento escala automaticamente para preservar a integridade dos dados em alta resolução</p>
+            <!-- Rodapé Técnico -->
+            <div class="mt-24 pt-16 border-t-4 border-slate-100 flex justify-between items-end">
+                <div class="text-left">
+                    <p class="text-sm text-slate-400 font-black uppercase tracking-[0.8em]">Fazenda Oasis</p>
+                    <p class="text-[10px] text-slate-300 uppercase font-bold">Relatório gerado automaticamente • v3.0 Lado a Lado</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-3xl text-right">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Média Geral do Teste</p>
+                    <p class="text-3xl font-[900] text-emerald-600" id="media-geral">0 L/h</p>
+                </div>
             </div>
         </div>
 
         <!-- BOTÕES -->
-        <div class="flex flex-col md:flex-row gap-8 no-print pb-40">
+        <div class="flex flex-col md:flex-row gap-8 no-print pb-40 max-w-[1400px] mx-auto">
             <button onclick="baixarJPEG()" class="flex-[3] bg-slate-900 hover:bg-black text-white font-black py-10 rounded-[2.5rem] shadow-2xl transition-all flex items-center justify-center gap-8 uppercase tracking-[0.2em] text-xl">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Exportar Relatório Ultra HD
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Exportar Relatório Lado a Lado (JPEG)
             </button>
             <button onclick="resetarDados()" class="flex-1 bg-white border-4 border-slate-100 text-slate-300 font-black py-10 rounded-[2.5rem] hover:bg-red-50 hover:text-red-500 transition-all uppercase text-xs tracking-widest">
-                Limpar Banco
+                Zerar Sistema
             </button>
         </div>
     </div>
@@ -187,29 +175,7 @@
                 document.getElementById('display-poco').innerText = e.target.value.toUpperCase() || "---";
             });
             inicializarGrafico();
-            ajustarLarguraRelatorio();
         };
-
-        function ajustarLarguraRelatorio() {
-            const container = document.getElementById('relatorio-export');
-            const count = dadosLeitura.length;
-            
-            // Lógica de expansão lateral: cada 1 registro adiciona 30px após os primeiros 10
-            let novaLargura = 1200; 
-            if (count > 10) {
-                novaLargura = 1200 + ((count - 10) * 45);
-            }
-            
-            container.style.width = novaLargura + "px";
-        }
-
-        function getDynamicSize() {
-            const count = dadosLeitura.length;
-            if (count > 40) return { font: 28, padding: 30, label: 18, bar: 0.8 };
-            if (count > 20) return { font: 24, padding: 25, label: 16, bar: 0.7 };
-            if (count > 10) return { font: 20, padding: 20, label: 14, bar: 0.6 };
-            return { font: 18, padding: 16, label: 12, bar: 0.5 };
-        }
 
         function adicionarLeitura() {
             const dataVal = document.getElementById('data-input').value;
@@ -217,111 +183,140 @@
             const vazao = parseFloat(document.getElementById('leitura-vazao').value);
 
             if (!dataVal || !hora || isNaN(vazao)) {
-                showToast("⚠️ DADOS INVÁLIDOS");
+                showToast("⚠️ PREENCHA TODOS OS CAMPOS");
                 return;
             }
 
             dadosLeitura.push({ data: dataVal, hora: hora, vazao: vazao });
-            dadosLeitura.sort((a, b) => new Date(`${a.data}T${a.hora}`) - new Date(`${b.data}T${b.hora}`));
+            dadosLeitura.sort((a, b) => {
+                if (a.data !== b.data) return new Date(a.data) - new Date(b.data);
+                return a.hora.localeCompare(b.hora);
+            });
 
-            ajustarLarguraRelatorio();
-            renderizarTabela();
+            renderizarTabelaLadoALado();
             atualizarGrafico();
+            ajustarLargura();
             
             document.getElementById('leitura-vazao').value = '';
-            showToast("✅ REGISTRADO COM SUCESSO");
+            showToast("✅ REGISTRADO");
+        }
+
+        function ajustarLargura() {
+            const container = document.getElementById('relatorio-export');
+            const datasDistintas = [...new Set(dadosLeitura.map(d => d.data))].length;
+            
+            // Cada nova data adiciona 350px de largura lateral
+            let novaLargura = 1200 + (datasDistintas > 1 ? (datasDistintas - 1) * 400 : 0);
+            container.style.width = Math.max(1200, novaLargura) + "px";
+        }
+
+        function renderizarTabelaLadoALado() {
+            const container = document.getElementById('tabela-comparativa');
+            const placeholder = document.getElementById('placeholder-text');
+            container.innerHTML = '';
+            
+            if (dadosLeitura.length === 0) {
+                container.appendChild(placeholder);
+                document.getElementById('media-geral').innerText = '0 L/h';
+                return;
+            }
+
+            // Agrupa dados por data
+            const grupos = dadosLeitura.reduce((acc, curr) => {
+                if (!acc[curr.data]) acc[curr.data] = [];
+                acc[curr.data].push(curr);
+                return acc;
+            }, {});
+
+            Object.keys(grupos).forEach(data => {
+                const [ano, mes, dia] = data.split('-');
+                const col = document.createElement('div');
+                col.className = "data-column flex flex-col";
+                
+                // Cabeçalho da coluna (Data)
+                const header = document.createElement('div');
+                header.className = "bg-slate-900 text-white p-6 text-center font-black text-xl border-b-2 border-slate-700";
+                header.innerText = `${dia}/${mes}/${ano}`;
+                col.appendChild(header);
+
+                // Sub-cabeçalho (Labels)
+                const subHeader = document.createElement('div');
+                subHeader.className = "grid grid-cols-2 bg-slate-100 border-b border-slate-200 p-4 text-[10px] font-black uppercase text-slate-500 text-center";
+                subHeader.innerHTML = '<div>Horário</div><div>Vazão (L/h)</div>';
+                col.appendChild(subHeader);
+
+                // Lista de vazões
+                grupos[data].forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = "row-item grid grid-cols-2 border-b border-slate-50 p-5 text-center items-center relative";
+                    
+                    // Encontra o index global para exclusão
+                    const globalIdx = dadosLeitura.findIndex(d => d === item);
+
+                    row.innerHTML = `
+                        <div class="font-bold text-slate-400 text-lg">${item.hora}</div>
+                        <div class="font-black text-emerald-600 text-2xl">${item.vazao.toLocaleString('pt-BR')}</div>
+                        <button onclick="excluirRegistro(${globalIdx})" class="btn-del absolute right-2 text-red-200 hover:text-red-500 no-print">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                        </button>
+                    `;
+                    col.appendChild(row);
+                });
+
+                // Rodapé da coluna (Média do Dia)
+                const mediaDia = grupos[data].reduce((acc, c) => acc + c.vazao, 0) / grupos[data].length;
+                const footer = document.createElement('div');
+                footer.className = "mt-auto bg-slate-50 p-6 border-t-2 border-slate-200 text-center";
+                footer.innerHTML = `
+                    <div class="text-[9px] font-black text-slate-400 uppercase">Média do Dia</div>
+                    <div class="text-xl font-black text-slate-800">${mediaDia.toLocaleString('pt-BR', {maximumFractionDigits: 1})} L/h</div>
+                `;
+                col.appendChild(footer);
+
+                container.appendChild(col);
+            });
+
+            const mediaGeral = dadosLeitura.reduce((acc, c) => acc + c.vazao, 0) / dadosLeitura.length;
+            document.getElementById('media-geral').innerText = mediaGeral.toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' L/h';
         }
 
         function excluirRegistro(index) {
             dadosLeitura.splice(index, 1);
-            ajustarLarguraRelatorio();
-            renderizarTabela();
+            renderizarTabelaLadoALado();
             atualizarGrafico();
+            ajustarLargura();
             showToast("🗑️ REMOVIDO");
-        }
-
-        function renderizarTabela() {
-            const corpo = document.getElementById('tabela-corpo');
-            const sizes = getDynamicSize();
-            corpo.innerHTML = '';
-            
-            if (dadosLeitura.length === 0) {
-                corpo.innerHTML = '<tr><td colspan="4" class="px-8 py-40 text-center text-slate-200 italic font-black text-3xl uppercase">Aguardando dados...</td></tr>';
-                document.getElementById('total-horas').innerText = '0.00 h';
-                document.getElementById('total-volume').innerText = '0 L/h';
-                return;
-            }
-
-            const inicio = new Date(`${dadosLeitura[0].data}T${dadosLeitura[0].hora}`);
-            const fim = new Date(`${dadosLeitura[dadosLeitura.length - 1].data}T${dadosLeitura[dadosLeitura.length - 1].hora}`);
-            const diffH = Math.max(0, (fim - inicio) / 3600000);
-            const somaV = dadosLeitura.reduce((acc, i) => acc + i.vazao, 0);
-
-            dadosLeitura.forEach((item, index) => {
-                const [ano, mes, dia] = item.data.split('-');
-                const tr = document.createElement('tr');
-                tr.style.fontSize = sizes.font + 'px';
-                
-                tr.innerHTML = `
-                    <td class="px-10 py-8 text-slate-400 font-bold">${dia}/${mes}/${ano}</td>
-                    <td class="px-10 py-8 font-black text-slate-800">${item.hora}</td>
-                    <td class="px-10 py-8 font-[900] text-emerald-600 text-right">${item.vazao.toLocaleString('pt-BR')} L/h</td>
-                    <td class="px-10 py-8 text-center col-acoes">
-                        <button onclick="excluirRegistro(${index})" class="text-slate-200 hover:text-red-500 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    </td>
-                `;
-                corpo.appendChild(tr);
-            });
-
-            document.getElementById('tab-header').style.fontSize = (sizes.font + 4) + 'px';
-            document.getElementById('total-horas').style.fontSize = (sizes.font + 10) + 'px';
-            document.getElementById('total-volume').style.fontSize = (sizes.font + 20) + 'px';
-
-            document.getElementById('total-horas').innerText = diffH.toFixed(2) + ' h';
-            document.getElementById('total-volume').innerText = somaV.toLocaleString('pt-BR') + ' L/h';
         }
 
         function inicializarGrafico() {
             const ctx = document.getElementById('graficoVazao').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                        borderColor: '#10b981',
-                        borderWidth: 5,
-                        borderRadius: 15,
-                        datalabels: {
-                            align: 'top',
-                            anchor: 'end',
-                            color: '#064e3b',
-                            font: { size: 16, weight: '900' },
-                            formatter: (v) => v.toLocaleString('pt-BR')
-                        }
-                    }]
-                },
+                data: { labels: [], datasets: [{ data: [], backgroundColor: '#10b981', borderRadius: 10 }] },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 80, bottom: 40, left: 40, right: 40 } },
+                    layout: { padding: { top: 60, bottom: 20 } },
                     plugins: { 
                         legend: { display: false },
-                        datalabels: { display: true }
+                        datalabels: { 
+                            display: true, 
+                            align: 'top', 
+                            anchor: 'end', 
+                            color: '#064e3b', 
+                            font: { size: 14, weight: '900' },
+                            formatter: (v) => v.toLocaleString('pt-BR')
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true, border: { display: false }, ticks: { font: { size: 14, weight: 'bold' } } },
-                        x: { border: { display: false }, ticks: { font: { size: 14, weight: '900' } } }
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold' } } },
+                        x: { grid: { display: false }, ticks: { font: { weight: '900', size: 12 } } }
                     }
                 }
             });
         }
 
         function atualizarGrafico() {
-            const sizes = getDynamicSize();
             const labels = dadosLeitura.map(d => {
                 const [ano, mes, dia] = d.data.split('-');
                 return [`${dia}/${mes}`, d.hora];
@@ -331,53 +326,56 @@
             chartInstance.data.labels = labels;
             chartInstance.data.datasets[0].data = valores;
 
-            chartInstance.options.plugins.datalabels.font.size = sizes.font;
-            chartInstance.options.scales.x.ticks.font.size = sizes.label;
-            chartInstance.options.scales.y.ticks.font.size = sizes.label;
-
+            // Cores alternadas por data
+            const cores = [];
+            let lastDate = "";
+            let colorToggle = true;
+            dadosLeitura.forEach(d => {
+                if(d.data !== lastDate) {
+                    colorToggle = !colorToggle;
+                    lastDate = d.data;
+                }
+                cores.push(colorToggle ? '#10b981' : '#3b82f6');
+            });
+            chartInstance.data.datasets[0].backgroundColor = cores;
             chartInstance.update();
         }
 
         async function baixarJPEG() {
             if (dadosLeitura.length === 0) return;
-
             const relatorio = document.getElementById('relatorio-export');
-            const acoes = document.querySelectorAll('.col-acoes');
-            
-            showToast("📸 PROCESSANDO IMAGEM ULTRA HD...");
-            acoes.forEach(a => a.classList.add('hide-on-export'));
+            showToast("📸 GERANDO IMAGEM DE ALTA RESOLUÇÃO...");
             
             try {
                 const canvas = await html2canvas(relatorio, {
-                    scale: 3, 
+                    scale: 2, 
                     useCORS: true,
                     backgroundColor: '#ffffff',
-                    width: relatorio.offsetWidth,
+                    width: relatorio.scrollWidth,
                     height: relatorio.scrollHeight,
-                    logging: false
+                    scrollX: 0,
+                    scrollY: 0
                 });
                 
                 const link = document.createElement('a');
-                const poco = document.getElementById('poco-nome').value || 'TESTE_VAZAO';
-                link.download = `RELATORIO_${poco.toUpperCase().replace(/\s+/g, '_')}_${Date.now()}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 1.0);
+                const poco = document.getElementById('poco-nome').value || 'FAZENDA_OASIS';
+                link.download = `RELATORIO_VAZAO_COMPLETO_${poco.replace(/\s+/g, '_')}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
-                showToast("✅ RELATÓRIO SALVO COM SUCESSO");
+                showToast("✅ DOWNLOAD REALIZADO!");
             } catch (err) {
-                showToast("❌ FALHA AO GERAR ARQUIVO");
+                showToast("❌ ERRO AO EXPORTAR");
                 console.error(err);
-            } finally {
-                acoes.forEach(a => a.classList.remove('hide-on-export'));
             }
         }
 
         function resetarDados() {
-            if (confirm("ATENÇÃO: DESEJA APAGAR TODOS OS REGISTROS?")) {
+            if (confirm("ATENÇÃO: Deseja apagar todos os registros e começar um novo teste?")) {
                 dadosLeitura = [];
-                ajustarLarguraRelatorio();
-                renderizarTabela();
+                renderizarTabelaLadoALado();
                 atualizarGrafico();
-                showToast("🧹 BANCO DE DADOS LIMPO");
+                ajustarLargura();
+                showToast("🧹 SISTEMA REINICIADO");
             }
         }
 
