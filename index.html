@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Teste de Poço - Fazenda Oasis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin para exibir rótulos de dados nos gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .canvas-container { position: relative; height: 400px; width: 100%; margin-top: 30px; }
+        @media print { .no-print { display: none; } }
+        .glass-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <!-- Formulário de Entrada (Apenas no Navegador) -->
+        <div class="glass-card p-6 rounded-2xl shadow-sm no-print">
+            <div class="flex flex-col md:flex-row items-center gap-4 mb-6 border-b pb-4">
+                <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-16 w-auto object-contain border-none">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 uppercase">Registro de Vazão</h2>
+                    <p class="text-emerald-600 font-bold text-sm uppercase tracking-widest">Fazenda Oasis</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Identificação do Poço</label>
+                    <input type="text" id="poco-nome" placeholder="Ex: Poço Artesiano 01" class="mt-1 block w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Data da Medição</label>
+                    <input type="date" id="data-input" class="mt-1 block w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Horário</label>
+                    <input type="time" id="leitura-hora" class="mt-1 block w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Vazão (L/h)</label>
+                    <input type="number" id="leitura-vazao" step="0.001" placeholder="Ex: 6575" class="mt-1 block w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button onclick="adicionarLeitura()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-all shadow-md active:scale-95 uppercase text-sm">
+                    Adicionar Registro
+                </button>
+            </div>
+        </div>
+
+        <!-- Área que será transformada em JPEG -->
+        <div id="relatorio-export" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-start border-b-2 border-gray-800 pb-6 mb-6 gap-6">
+                <div class="flex items-center gap-5">
+                    <img src="https://i.imgur.com/wEozr34.png" alt="Logo" class="h-24 w-auto object-contain border-none">
+                    <div>
+                        <h1 class="text-3xl font-black text-gray-900 leading-none">RELATÓRIO DE VAZÃO</h1>
+                        <p class="text-emerald-600 font-black uppercase tracking-[0.2em] text-sm mt-2">Fazenda Oasis</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-w-[200px]">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Informações Técnicas</p>
+                    <p class="text-sm font-bold text-gray-800 uppercase">POÇO: <span id="display-poco" class="font-normal text-gray-600 ml-1">---</span></p>
+                    <p class="text-[10px] text-gray-500 mt-2 uppercase tracking-tighter italic">Sítio Pedra Grande - Monitoramento de Vazão</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-gray-900 text-white uppercase text-[11px] tracking-widest">
+                            <th class="px-4 py-4 rounded-tl-lg">Data</th>
+                            <th class="px-4 py-4">Horário</th>
+                            <th class="px-4 py-4 rounded-tr-lg">Vazão (L/h)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo">
+                        <!-- Linhas injetadas via JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-bold text-gray-900 bg-gray-50">
+                            <td class="px-4 py-4 text-right uppercase" colspan="2">Tempo Total Decorrido:</td>
+                            <td class="px-4 py-4 text-blue-800" id="total-horas">0.00 h</td>
+                        </tr>
+                        <tr class="font-black text-white bg-emerald-600">
+                            <td class="px-4 py-4 text-right uppercase" colspan="2">Soma Total das Vazões (L/h):</td>
+                            <td class="px-4 py-4" id="total-volume">0 L/h</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="graficoVazao"></canvas>
+            </div>
+            
+            <div class="mt-8 text-center text-[10px] text-gray-400 border-t pt-4 italic uppercase tracking-widest">
+                Documento Gerado Eletronicamente - Sítio Pedra Grande
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 no-print pb-20">
+            <button onclick="baixarJPEG()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 uppercase tracking-wider">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Baixar Relatório (JPEG)
+            </button>
+            <button onclick="limparTudo()" class="bg-white border border-gray-300 hover:bg-red-50 hover:text-red-600 text-gray-500 font-bold py-5 px-8 rounded-xl transition-all uppercase text-xs">
+                Limpar Tudo
+            </button>
+        </div>
+    </div>
+
+    <!-- Feedback Visual -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-y-32 transition-transform duration-500 flex items-center gap-3 z-50">
+        <div class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></div>
+        <span id="toast-msg" class="font-medium text-sm"></span>
+    </div>
+
+    <script>
+        let dadosLeitura = [];
+        let chartInstance = null;
+
+        // Ativar plugin de labels para mostrar os valores no gráfico
+        Chart.register(ChartDataLabels);
+
+        window.onload = () => {
+            // Data padrão como hoje
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data-input').value = hoje;
+            
+            // Atualizar nome do poço no relatório em tempo real
+            document.getElementById('poco-nome').addEventListener('input', (e) => {
+                document.getElementById('display-poco').innerText = e.target.value.toUpperCase() || "---";
+            });
+            
+            inicializarGrafico();
+        };
+
+        function adicionarLeitura() {
+            const dataVal = document.getElementById('data-input').value;
+            const hora = document.getElementById('leitura-hora').value;
+            const vazaoRaw = document.getElementById('leitura-vazao').value;
+            const vazao = parseFloat(vazaoRaw);
+
+            if (!dataVal || !hora || isNaN(vazao)) {
+                showToast("Preencha horário e vazão corretamente.");
+                return;
+            }
+
+            const timestamp = `${dataVal}T${hora}`;
+            if (dadosLeitura.find(d => `${d.data}T${d.hora}` === timestamp)) {
+                showToast("Este horário já existe nesta data.");
+                return;
+            }
+
+            // Armazenar os dados
+            dadosLeitura.push({ 
+                data: dataVal, 
+                hora: hora, 
+                vazao: vazao // Agora tratada puramente como L/h
+            });
+            
+            // Ordenação Cronológica Automática
+            dadosLeitura.sort((a, b) => {
+                const dateA = new Date(`${a.data}T${a.hora}`);
+                const dateB = new Date(`${b.data}T${b.hora}`);
+                return dateA - dateB;
+            });
+
+            renderizarTabela();
+            atualizarGrafico();
+            
+            // Limpar campo de vazão para o próximo registro
+            document.getElementById('leitura-vazao').value = '';
+            showToast("Registro adicionado!");
+        }
+
+        function renderizarTabela() {
+            const corpo = document.getElementById('tabela-corpo');
+            corpo.innerHTML = '';
+            let somaTotalLh = 0;
+            let tempoTotalH = 0;
+
+            if (dadosLeitura.length > 0) {
+                // Cálculo do tempo decorrido entre o primeiro e o último ponto
+                const inicio = new Date(`${dadosLeitura[0].data}T${dadosLeitura[0].hora}`);
+                const fim = new Date(`${dadosLeitura[dadosLeitura.length - 1].data}T${dadosLeitura[dadosLeitura.length - 1].hora}`);
+                tempoTotalH = (fim - inicio) / (1000 * 60 * 60);
+                
+                // Soma direta de todas as vazões digitadas
+                somaTotalLh = dadosLeitura.reduce((acc, item) => acc + item.vazao, 0);
+            }
+
+            dadosLeitura.forEach((item) => {
+                const [ano, mes, dia] = item.data.split('-');
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-100 hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-4 py-4 text-gray-500 font-medium">${dia}/${mes}/${ano}</td>
+                    <td class="px-4 py-4 font-bold text-gray-800">${item.hora}</td>
+                    <td class="px-4 py-4 font-black text-emerald-600">${item.vazao.toLocaleString('pt-BR')} L/h</td>
+                `;
+                corpo.appendChild(tr);
+            });
+
+            document.getElementById('total-horas').innerText = Math.abs(tempoTotalH).toFixed(2) + ' h';
+            document.getElementById('total-volume').innerText = somaTotalLh.toLocaleString('pt-BR') + ' L/h';
+        }
+
+        function inicializarGrafico() {
+            const ctx = document.getElementById('graficoVazao').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Vazão Instantânea (L/h)',
+                            data: [],
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            order: 2,
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'end',
+                                color: '#065f46',
+                                font: { weight: 'bold', size: 11 },
+                                formatter: (val) => val.toLocaleString('pt-BR') + ' L/h'
+                            }
+                        },
+                        {
+                            label: 'Tendência da Vazão',
+                            data: [],
+                            type: 'line',
+                            borderColor: '#1e40af',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 3,
+                            fill: false,
+                            tension: 0.3,
+                            order: 1,
+                            datalabels: { display: false }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 35, bottom: 10 } },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { weight: '600', size: 12 } } },
+                        datalabels: { display: true }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#f1f5f9' },
+                            title: { display: true, text: 'Litros por Hora (L/h)', font: { weight: 'bold' } } 
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function atualizarGrafico() {
+            // Rótulo: Dia/Mes Hora (Ex: 14/05 07:00)
+            const labels = dadosLeitura.map(d => {
+                const [ano, mes, dia] = d.data.split('-');
+                return `${dia}/${mes} ${d.hora}`;
+            });
+            const valores = dadosLeitura.map(d => d.vazao);
+
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets[0].data = valores;
+            chartInstance.data.datasets[1].data = valores;
+            chartInstance.update();
+        }
+
+        async function baixarJPEG() {
+            if (dadosLeitura.length === 0) {
+                showToast("Adicione dados primeiro!");
+                return;
+            }
+
+            const elemento = document.getElementById('relatorio-export');
+            showToast("Gerando relatório HD...");
+
+            try {
+                const canvas = await html2canvas(elemento, {
+                    scale: 3, 
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const link = document.createElement('a');
+                const poco = document.getElementById('poco-nome').value || 'Fazenda_Oasis';
+                link.download = `Relatorio_Vazao_${poco.replace(/\s+/g, '_')}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+                
+                showToast("✅ Download concluído!");
+            } catch (err) {
+                showToast("Erro ao gerar imagem.");
+                console.error(err);
+            }
+        }
+
+        function limparTudo() {
+            if (confirm("Deseja apagar todos os registros atuais?")) {
+                dadosLeitura = [];
+                renderizarTabela();
+                atualizarGrafico();
+                showToast("Dados removidos.");
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            msgEl.innerText = msg;
+            toast.classList.remove('translate-y-32');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
